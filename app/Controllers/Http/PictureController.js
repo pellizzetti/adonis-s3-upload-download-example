@@ -1,18 +1,58 @@
 'use strict';
 
 const Drive = use('Drive');
+const Helpers = use('Helpers');
+
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const { Readable } = require('stream');
 
 class PictureController {
-  async show({ params }) {
+  __createFile(file, pathname) {
+    return new Promise((resolve, reject) => {
+      const writer = fs.createWriteStream(pathname);
+
+      file.pipe(writer);
+
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+  }
+
+  async show({ params, response }) {
     const folder = 'uploads';
     const { filename } = params;
+    const path = Helpers.tmpPath(`${folder}/`);
 
-    const [exists, fileUrl] = await Promise.all([
+    const [exists, s3Object] = await Promise.all([
       Drive.exists(`${folder}/${filename}`),
-      Drive.getUrl(`${folder}/${filename}`),
+      Drive.getObject(`${folder}/${filename}`),
     ]);
 
-    return { exists, fileUrl };
+    if (!exists) {
+      return response.status(404).send({
+        error: {
+          message: 'File not found.',
+        },
+      });
+    }
+
+    if (!fs.existsSync(path)) {
+      mkdirp(path);
+    }
+
+    const pathname = `${path}/${filename}`;
+
+    const readableInstanceStream = new Readable({
+      read() {
+        this.push(s3Object.Body);
+        this.push(null);
+      },
+    });
+
+    await this.__createFile(readableInstanceStream, pathname);
+
+    return response.download(pathname);
   }
 
   async upload({ request }) {
