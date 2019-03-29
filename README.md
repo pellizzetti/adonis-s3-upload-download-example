@@ -1,28 +1,76 @@
-# Adonis API application
+# adonis-s3-upload-example
 
-This is the boilerplate for creating an API server in AdonisJs, it comes pre-configured with.
+Simple example of a file upload routine using **AdonisJS**
 
-1. Bodyparser
-2. Authentication
-3. CORS
-4. Lucid ORM
-5. Migrations and seeds
+## Getting started
 
-## Setup
+Install dependencies:
 
-Use the adonis command to install the blueprint
-
-```bash
-adonis new yardstick --api-only
+```sh
+npm install
+# OR
+# yarn
 ```
 
-or manually clone the repo and then run `npm install`.
+Run the application:
 
-
-### Migrations
-
-Run the following command to run startup migrations.
-
-```js
-adonis migration:run
 ```
+adonis serve --dev
+```
+
+## Routes
+```
+GET  '/picture/:filename'          => 'PictureController.show'
+GET  '/picture/:filename/download' => 'PictureController.download'
+POST '/picture'                    => 'PictureController.upload'
+```
+
+### Methods
+
+> app/Controllers/Http/PictureController.js
+
+#### show()
+
+Return if a file exists in bucket and his formatted url.
+
+##### Parameters
+
+| Name            | Type     | Description             |
+| --------------- | -------- | ----------------------- |
+| params.filename | `string` | Filename to be queried. |
+
+##### Returns
+
+- `{ exists: boolean, fileUrl: string }` Status object
+
+#### download()
+
+Get file from bucket and save to local disk.
+If file doesn't exist return error message.
+
+##### Parameters
+
+| Name              | Type       | Description                                   |
+| ----------------- | ---------- | --------------------------------------------- |
+| params.filename   | `string`   | Filename to be queried.                       |
+| response.send     | `function` | Sets the response body for the HTTP request   |
+| response.download | `function` | Stream a file to the client as HTTP response. |
+
+##### Returns
+
+- `ResponseStream` Pipe stream to the response
+
+#### upload()
+
+Upload file to bucket.
+
+##### Parameters
+
+| Name                      | Type       | Description                                          |
+| ------------------------- | ---------- | ---------------------------------------------------- |
+| request.multipart.file    | `function` | Add a listener to file.                              |
+| request.multipart.process | `function` | Process files by going over each part of the stream. |
+
+##### Returns
+
+- `string` Upload successful message.
