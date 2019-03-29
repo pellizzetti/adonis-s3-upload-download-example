@@ -21,4 +21,5 @@ Route.get('/', () => {
 });
 
 Route.get('/picture/:filename', 'PictureController.show');
+Route.get('/picture/:filename/download', 'PictureController.download');
 Route.post('/picture', 'PictureController.upload');
