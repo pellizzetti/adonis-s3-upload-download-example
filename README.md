@@ -29,6 +29,8 @@ POST '/picture'                    => 'PictureController.upload'
 
 > app/Controllers/Http/PictureController.js
 
+---
+
 #### show()
 
 Return if a file exists in bucket and his formatted url.
@@ -42,6 +44,8 @@ Return if a file exists in bucket and his formatted url.
 ##### Returns
 
 - `{ exists: boolean, fileUrl: string }` Status object
+
+---
 
 #### download()
 
@@ -59,6 +63,8 @@ If file doesn't exist return error message.
 ##### Returns
 
 - `ResponseStream` Pipe stream to the response
+
+---
 
 #### upload()
 
